@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Typique OG image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FEF9C3"/>
+      <stop offset="50%" stop-color="#D1FAE5"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="170" y="120" width="860" height="390" rx="24" fill="#FDF6E3" stroke="#93C5FD" stroke-width="6"/>
+  <text x="220" y="235" font-family="'Courier Prime', monospace" font-size="84" fill="#1A1A1A">Typique</text>
+  <text x="220" y="300" font-family="'IBM Plex Mono', monospace" font-size="36" fill="#334155">Vintage Typewriter Simulator</text>
+  <text x="220" y="360" font-family="'IBM Plex Mono', monospace" font-size="26" fill="#475569">Write. Organize pages. Export to PDF or text.</text>
+  <rect x="220" y="410" width="760" height="6" rx="3" fill="#1E3A8A" opacity="0.45"/>
+</svg>

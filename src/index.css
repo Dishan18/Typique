@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.3; transform: scale(0.8) rotate(10deg); }
+}
+
+.animate-flicker {
+  animation: flicker 3s ease-in-out infinite;
+}
+.animate-flicker-fast {
+  animation: flicker 1.5s ease-in-out infinite;
+}
+.animate-flicker-slow {
+  animation: flicker 4s ease-in-out infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
