@@ -115,7 +115,10 @@ export default function App() {
 
       {viewMode === "typing" && (
         <div className="shrink-0 z-30">
-          <TypewriterKeyboard pressedKeys={pressedKeys} onVirtualKeyPress={typeVirtualKey} />
+          <TypewriterKeyboard
+            pressedKeys={pressedKeys}
+            onVirtualKeyPress={typeVirtualKey}
+          />
         </div>
       )}
 
