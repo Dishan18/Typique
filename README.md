@@ -4,12 +4,17 @@ Typique is a browser-based vintage typewriter simulator built with React + TypeS
 
 ## Features
 
-- Real-time typewriter typing experience from physical keyboard input
+- Real-time typewriter typing from both physical keyboard and on-screen keyboard (mobile-friendly)
+- Shift support on virtual keyboard
+- Shift + number symbols on virtual keyboard: `! @ # $ % ^ & * ( )`
 - Multi-page writing with automatic line/page wrapping
 - Full-page manager to browse, select, and add pages
 - Customizable paper color, ink color, and font
+- Default font set to Special Elite
+- Morse Code display mode for letters `A-Z` and numbers `0-9`
 - Optional synthesized typewriter sounds (key clack + carriage return ding)
 - Export selected pages as plain text or PDF
+- Send selected text via WhatsApp (`wa.me`) with India code `91` auto-prefilled
 
 ## Tech Stack
 
@@ -51,6 +56,12 @@ npm run preview
 - `npm run build` - build production bundle
 - `npm run preview` - preview production build
 - `npm run lint` - TypeScript type-check only
+
+## WhatsApp Export Notes
+
+- Enter recipient mobile number without `91`
+- App validates 10 digits and generates WhatsApp URL as `https://wa.me/91<number>?text=<encoded_message>`
+- While typing in form inputs (such as WhatsApp number field), typewriter input capture is ignored to prevent accidental page edits
 
 ## SEO
 

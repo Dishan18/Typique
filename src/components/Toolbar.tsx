@@ -1,7 +1,6 @@
 import React from "react";
 import { PAPER_COLORS, INK_COLORS, FONTS } from "../constants";
 import { Download, Volume2, VolumeX, Settings2 } from "lucide-react";
-import jsPDF from "jspdf";
 
 interface ToolbarProps {
   paperColor: string;
