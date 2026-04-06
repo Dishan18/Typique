@@ -9,21 +9,29 @@ import { TypewriterKeyboard } from "./components/TypewriterKeyboard";
 import { PAPER_COLORS, INK_COLORS, FONTS } from "./constants";
 
 const FONT_STORAGE_KEY = "typique:selected-font";
+const DEFAULT_FONT_ID = "special-elite";
+
+function getDefaultFont(): string {
+  return (
+    FONTS.find((fontOption) => fontOption.id === DEFAULT_FONT_ID)?.value ??
+    FONTS[0].value
+  );
+}
 
 function getInitialFont(): string {
   if (typeof window === "undefined") {
-    return FONTS[0].value;
+    return getDefaultFont();
   }
 
   const savedFont = window.localStorage.getItem(FONT_STORAGE_KEY);
   if (!savedFont) {
-    return FONTS[0].value;
+    return getDefaultFont();
   }
 
   const isSupportedFont = FONTS.some(
     (fontOption) => fontOption.value === savedFont,
   );
-  return isSupportedFont ? savedFont : FONTS[0].value;
+  return isSupportedFont ? savedFont : getDefaultFont();
 }
 
 export default function App() {
@@ -43,7 +51,7 @@ export default function App() {
 
   const [paperColor, setPaperColor] = useState(PAPER_COLORS[1].value); // Cream default
   const [inkColor, setInkColor] = useState(INK_COLORS[0].value); // Black default
-  const [font, setFont] = useState(getInitialFont); // Courier Prime default
+  const [font, setFont] = useState(getInitialFont); // Special Elite default
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {

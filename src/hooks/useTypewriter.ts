@@ -120,6 +120,17 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
     (e: KeyboardEvent) => {
       if (viewMode !== "typing") return;
 
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key === "Tab" || e.key.startsWith("F") || e.key === "Escape")
         return;

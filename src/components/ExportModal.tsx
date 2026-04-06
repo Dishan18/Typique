@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Download, FileText, CheckSquare, Square } from "lucide-react";
+import {
+  X,
+  Download,
+  FileText,
+  CheckSquare,
+  Square,
+  MessageCircle,
+} from "lucide-react";
 import { getFontFamily, getRenderableText } from "../utils/morse";
 
 interface ExportModalProps {
@@ -24,11 +31,20 @@ export function ExportModal({
     new Set(pages.map((_, i) => i)),
   );
   const [isExporting, setIsExporting] = useState(false);
+  const [whatsAppNumber, setWhatsAppNumber] = useState("");
+
+  const getSelectedText = () => {
+    const selectedIndices = Array.from<number>(selectedPages).sort();
+    return selectedIndices
+      .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
+      .join("\n\n\n");
+  };
 
   // Reset selection when modal opens
   React.useEffect(() => {
     if (isOpen) {
       setSelectedPages(new Set(pages.map((_, i) => i)));
+      setWhatsAppNumber("");
     }
   }, [isOpen, pages]);
 
@@ -51,10 +67,7 @@ export function ExportModal({
   };
 
   const handleExportTxt = () => {
-    const selectedIndices = Array.from<number>(selectedPages).sort();
-    const textToExport = selectedIndices
-      .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
-      .join("\n\n\n");
+    const textToExport = getSelectedText();
 
     const blob = new Blob([textToExport], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -64,6 +77,35 @@ export function ExportModal({
     a.click();
     URL.revokeObjectURL(url);
     onClose();
+  };
+
+  const handleSendWhatsApp = () => {
+    if (selectedPages.size === 0) return;
+
+    const cleanNumber = whatsAppNumber.replace(/\D/g, "");
+    if (!/^\d{10}$/.test(cleanNumber)) {
+      alert("Please enter a valid 10-digit mobile number without 91.");
+      return;
+    }
+
+    const messageText = getSelectedText();
+    const waUrl = `https://wa.me/91${cleanNumber}?text=${encodeURIComponent(messageText)}`;
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleWhatsAppNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const nextDigits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setWhatsAppNumber(nextDigits);
+  };
+
+  const handleWhatsAppNumberKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key !== "Backspace") return;
+    e.preventDefault();
+    setWhatsAppNumber((prev) => prev.slice(0, -1));
   };
 
   const handleExportPdf = async () => {
@@ -174,6 +216,40 @@ export function ExportModal({
             </div>
 
             <div className="p-6 border-t border-blue-100 bg-blue-50 flex flex-col gap-3 shrink-0">
+              <div className="bg-white border-2 border-green-200 rounded-xl p-3 sm:p-4 space-y-2">
+                <label
+                  htmlFor="whatsapp-number"
+                  className="text-xs sm:text-sm font-bold text-green-700"
+                >
+                  Send via WhatsApp
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-green-700 font-semibold text-sm">
+                    +91
+                  </span>
+                  <input
+                    id="whatsapp-number"
+                    type="tel"
+                    inputMode="numeric"
+                    value={whatsAppNumber}
+                    onChange={handleWhatsAppNumberChange}
+                    onKeyDown={handleWhatsAppNumberKeyDown}
+                    placeholder="9876543210"
+                    className="w-full px-3 py-2 border border-green-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-green-300"
+                  />
+                </div>
+                <p className="text-xs text-green-700/80">
+                  Enter mobile number without 91. We auto-prefill 91 in the API.
+                </p>
+                <button
+                  onClick={handleSendWhatsApp}
+                  disabled={selectedPages.size === 0 || isExporting}
+                  className="w-full py-2.5 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <MessageCircle className="w-4 h-4" /> Send via WhatsApp
+                </button>
+              </div>
+
               <button
                 onClick={handleExportPdf}
                 disabled={selectedPages.size === 0 || isExporting}
