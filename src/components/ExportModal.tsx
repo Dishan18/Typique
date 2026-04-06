@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Download, FileText, CheckSquare, Square } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { X, Download, FileText, CheckSquare, Square } from "lucide-react";
+import { getFontFamily, getRenderableText } from "../utils/morse";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -11,8 +12,17 @@ interface ExportModalProps {
   paperColor: string;
 }
 
-export function ExportModal({ isOpen, onClose, pages, font, inkColor, paperColor }: ExportModalProps) {
-  const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set(pages.map((_, i) => i)));
+export function ExportModal({
+  isOpen,
+  onClose,
+  pages,
+  font,
+  inkColor,
+  paperColor,
+}: ExportModalProps) {
+  const [selectedPages, setSelectedPages] = useState<Set<number>>(
+    new Set(pages.map((_, i) => i)),
+  );
   const [isExporting, setIsExporting] = useState(false);
 
   // Reset selection when modal opens
@@ -42,13 +52,15 @@ export function ExportModal({ isOpen, onClose, pages, font, inkColor, paperColor
 
   const handleExportTxt = () => {
     const selectedIndices = Array.from<number>(selectedPages).sort();
-    const textToExport = selectedIndices.map(i => `--- Page ${i + 1} ---\n\n${pages[i]}`).join('\n\n\n');
-    
-    const blob = new Blob([textToExport], { type: 'text/plain' });
+    const textToExport = selectedIndices
+      .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
+      .join("\n\n\n");
+
+    const blob = new Blob([textToExport], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'typique-document.txt';
+    a.download = "typique-document.txt";
     a.click();
     URL.revokeObjectURL(url);
     onClose();
@@ -57,42 +69,42 @@ export function ExportModal({ isOpen, onClose, pages, font, inkColor, paperColor
   const handleExportPdf = async () => {
     if (selectedPages.size === 0) return;
     setIsExporting(true);
-    
+
     try {
-      const { jsPDF } = await import('jspdf');
-      const html2canvas = (await import('html2canvas')).default;
-      
-      const pdf = new jsPDF('p', 'pt', 'a4');
+      const { jsPDF } = await import("jspdf");
+      const html2canvas = (await import("html2canvas")).default;
+
+      const pdf = new jsPDF("p", "pt", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      
+
       const selectedIndices = Array.from(selectedPages).sort();
-      
+
       for (let i = 0; i < selectedIndices.length; i++) {
         const pageIndex = selectedIndices[i];
         const pageElement = document.getElementById(`export-page-${pageIndex}`);
         if (!pageElement) continue;
-        
-        const canvas = await html2canvas(pageElement, { 
+
+        const canvas = await html2canvas(pageElement, {
           scale: 2,
           useCORS: true,
           backgroundColor: paperColor,
-          logging: false
+          logging: false,
         });
-        
-        const imgData = canvas.toDataURL('image/png');
+
+        const imgData = canvas.toDataURL("image/png");
         const imgProps = pdf.getImageProperties(imgData);
         const ratio = imgProps.width / imgProps.height;
         const height = pdfWidth / ratio;
-        
+
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, height);
       }
-      
-      pdf.save('typique-document.pdf');
+
+      pdf.save("typique-document.pdf");
       onClose();
     } catch (error) {
-      console.error('Failed to export PDF:', error);
-      alert('Failed to export PDF. Please try again.');
+      console.error("Failed to export PDF:", error);
+      alert("Failed to export PDF. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -129,27 +141,31 @@ export function ExportModal({ isOpen, onClose, pages, font, inkColor, paperColor
             <div className="p-6 overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-gray-700">Select Pages</h3>
-                <button 
+                <button
                   onClick={toggleAll}
                   className="text-sm font-bold text-blue-500 hover:text-blue-700"
                 >
-                  {selectedPages.size === pages.length ? 'Deselect All' : 'Select All'}
+                  {selectedPages.size === pages.length
+                    ? "Deselect All"
+                    : "Select All"}
                 </button>
               </div>
-              
+
               <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                 {pages.map((_, index) => (
-                  <div 
+                  <div
                     key={index}
                     onClick={() => togglePage(index)}
-                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors border-2 ${selectedPages.has(index) ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-transparent hover:bg-gray-100'}`}
+                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors border-2 ${selectedPages.has(index) ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-transparent hover:bg-gray-100"}`}
                   >
                     {selectedPages.has(index) ? (
                       <CheckSquare className="w-5 h-5 text-blue-500 shrink-0" />
                     ) : (
                       <Square className="w-5 h-5 text-gray-300 shrink-0" />
                     )}
-                    <span className={`font-medium ${selectedPages.has(index) ? 'text-blue-700' : 'text-gray-600'}`}>
+                    <span
+                      className={`font-medium ${selectedPages.has(index) ? "text-blue-700" : "text-gray-600"}`}
+                    >
                       Page {index + 1}
                     </span>
                   </div>
@@ -184,21 +200,21 @@ export function ExportModal({ isOpen, onClose, pages, font, inkColor, paperColor
           {/* Hidden elements for PDF generation */}
           <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none">
             {pages.map((text, index) => (
-              <div 
+              <div
                 key={index}
                 id={`export-page-${index}`}
                 className="w-[800px] min-h-[1131px] p-16" // A4 ratio
-                style={{ 
+                style={{
                   backgroundColor: paperColor,
                   color: inkColor,
-                  fontFamily: font,
-                  fontSize: '1.25rem',
-                  lineHeight: '28px',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word'
+                  fontFamily: getFontFamily(font),
+                  fontSize: "1.25rem",
+                  lineHeight: "28px",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
                 }}
               >
-                {text}
+                {getRenderableText(text, font)}
               </div>
             ))}
           </div>

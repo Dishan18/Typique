@@ -1,7 +1,7 @@
-import React from 'react';
-import { PAPER_COLORS, INK_COLORS, FONTS } from '../constants';
-import { Download, Volume2, VolumeX, Settings2 } from 'lucide-react';
-import jsPDF from 'jspdf';
+import React from "react";
+import { PAPER_COLORS, INK_COLORS, FONTS } from "../constants";
+import { Download, Volume2, VolumeX, Settings2 } from "lucide-react";
+import jsPDF from "jspdf";
 
 interface ToolbarProps {
   paperColor: string;
@@ -36,7 +36,9 @@ export function Toolbar({
           className="bg-transparent text-xs sm:text-sm font-bold text-blue-600 outline-none cursor-pointer"
         >
           {PAPER_COLORS.map((c) => (
-            <option key={c.id} value={c.value}>{c.name} Paper</option>
+            <option key={c.id} value={c.value}>
+              {c.name} Paper
+            </option>
           ))}
         </select>
       </div>
@@ -49,7 +51,9 @@ export function Toolbar({
         className="bg-transparent text-xs sm:text-sm font-bold text-blue-600 outline-none cursor-pointer shrink-0"
       >
         {INK_COLORS.map((c) => (
-          <option key={c.id} value={c.value}>{c.name} Ink</option>
+          <option key={c.id} value={c.value}>
+            {c.name} Ink
+          </option>
         ))}
       </select>
 
@@ -57,11 +61,16 @@ export function Toolbar({
 
       <select
         value={font}
-        onChange={(e) => setFont(e.target.value)}
+        onChange={(e) => {
+          setFont(e.target.value);
+          e.currentTarget.blur();
+        }}
         className="bg-transparent text-xs sm:text-sm font-bold text-blue-600 outline-none cursor-pointer w-24 sm:w-32 shrink-0"
       >
         {FONTS.map((c) => (
-          <option key={c.id} value={c.value}>{c.name}</option>
+          <option key={c.id} value={c.value}>
+            {c.name}
+          </option>
         ))}
       </select>
 
@@ -72,12 +81,16 @@ export function Toolbar({
         className="text-blue-400 hover:text-blue-600 transition-colors shrink-0"
         title={soundEnabled ? "Mute typing sounds" : "Enable typing sounds"}
       >
-        {soundEnabled ? <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" /> : <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />}
+        {soundEnabled ? (
+          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+        ) : (
+          <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />
+        )}
       </button>
 
       <div className="w-px h-4 bg-blue-200 shrink-0"></div>
 
-      <button 
+      <button
         onClick={onExportClick}
         className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors shrink-0"
       >

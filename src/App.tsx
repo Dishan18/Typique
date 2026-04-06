@@ -8,6 +8,24 @@ import { ExportModal } from "./components/ExportModal";
 import { TypewriterKeyboard } from "./components/TypewriterKeyboard";
 import { PAPER_COLORS, INK_COLORS, FONTS } from "./constants";
 
+const FONT_STORAGE_KEY = "typique:selected-font";
+
+function getInitialFont(): string {
+  if (typeof window === "undefined") {
+    return FONTS[0].value;
+  }
+
+  const savedFont = window.localStorage.getItem(FONT_STORAGE_KEY);
+  if (!savedFont) {
+    return FONTS[0].value;
+  }
+
+  const isSupportedFont = FONTS.some(
+    (fontOption) => fontOption.value === savedFont,
+  );
+  return isSupportedFont ? savedFont : FONTS[0].value;
+}
+
 export default function App() {
   const [viewMode, setViewMode] = useState<"typing" | "full-page">("typing");
   const {
@@ -25,7 +43,7 @@ export default function App() {
 
   const [paperColor, setPaperColor] = useState(PAPER_COLORS[1].value); // Cream default
   const [inkColor, setInkColor] = useState(INK_COLORS[0].value); // Black default
-  const [font, setFont] = useState(FONTS[0].value); // Courier Prime default
+  const [font, setFont] = useState(getInitialFont); // Courier Prime default
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {
@@ -48,6 +66,10 @@ export default function App() {
     }
     metaDescription.setAttribute("content", description);
   }, [viewMode]);
+
+  useEffect(() => {
+    window.localStorage.setItem(FONT_STORAGE_KEY, font);
+  }, [font]);
 
   return (
     <main className="flex flex-col h-[100dvh] w-full bg-gradient-to-br from-yellow-100 via-green-100 to-blue-100 relative overflow-hidden transition-colors duration-500">
