@@ -1,10 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  appendTextToPage,
+  createEmptyPage,
+  getPagePlainText,
+  removeLastCharacter,
+  type StyledPage,
+} from "../utils/styledText";
 
 const MAX_LINES_PER_PAGE = 40;
 const MAX_CHARS_PER_LINE = 50;
 
-export function useTypewriter(viewMode: "typing" | "full-page") {
-  const [pages, setPages] = useState<string[]>([""]);
+export function useTypewriter(
+  viewMode: "typing" | "full-page",
+  activeFont: string,
+  activeInkColor: string,
+) {
+  const [pages, setPages] = useState<StyledPage[]>([createEmptyPage()]);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [lastKeystroke, setLastKeystroke] = useState<number>(0);
@@ -72,40 +83,63 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
         playSound(key === "Enter");
       }
 
-      setPages((prevPages: string[]) => {
+      setPages((prevPages: StyledPage[]) => {
         const newPages = [...prevPages];
-        const currentText = newPages[currentPageIndex];
+        const currentPage = newPages[currentPageIndex];
+        const currentText = getPagePlainText(currentPage);
         const lines = currentText.split("\n");
         const currentLine = lines[lines.length - 1];
 
         if (key === "Backspace") {
           if (currentText.length > 0) {
-            newPages[currentPageIndex] = currentText.slice(0, -1);
+            newPages[currentPageIndex] = removeLastCharacter(currentPage);
           }
         } else if (key === "Enter") {
           if (lines.length >= MAX_LINES_PER_PAGE) {
-            newPages.push("");
+            newPages.push(createEmptyPage());
             setCurrentPageIndex(newPages.length - 1);
           } else {
-            newPages[currentPageIndex] = currentText + "\n";
+            newPages[currentPageIndex] = appendTextToPage(
+              currentPage,
+              "\n",
+              activeFont,
+              activeInkColor,
+            );
           }
         } else if (key.length === 1) {
           if (currentLine.length >= MAX_CHARS_PER_LINE) {
             if (lines.length >= MAX_LINES_PER_PAGE) {
-              newPages.push(key);
+              newPages.push(
+                appendTextToPage(
+                  createEmptyPage(),
+                  key,
+                  activeFont,
+                  activeInkColor,
+                ),
+              );
               setCurrentPageIndex(newPages.length - 1);
             } else {
-              newPages[currentPageIndex] = currentText + "\n" + key;
+              newPages[currentPageIndex] = appendTextToPage(
+                appendTextToPage(currentPage, "\n", activeFont, activeInkColor),
+                key,
+                activeFont,
+                activeInkColor,
+              );
             }
           } else {
-            newPages[currentPageIndex] = currentText + key;
+            newPages[currentPageIndex] = appendTextToPage(
+              currentPage,
+              key,
+              activeFont,
+              activeInkColor,
+            );
           }
         }
 
         return newPages;
       });
     },
-    [currentPageIndex, playSound],
+    [currentPageIndex, playSound, activeFont, activeInkColor],
   );
 
   const typeVirtualKey = useCallback(
@@ -174,8 +208,8 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
   }, [isTyping, lastKeystroke]);
 
   const addNewPage = useCallback(() => {
-    setPages((prev: string[]) => {
-      const next = [...prev, ""];
+    setPages((prev: StyledPage[]) => {
+      const next = [...prev, createEmptyPage()];
       setCurrentPageIndex(next.length - 1);
       return next;
     });

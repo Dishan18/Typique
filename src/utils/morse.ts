@@ -50,7 +50,7 @@ export function getFontFamily(font: string): string {
   return font;
 }
 
-export function getRenderableText(text: string, font: string): string {
+export function renderTextForFont(text: string, font: string): string {
   if (!isMorseFont(font)) {
     return text;
   }
@@ -68,6 +68,10 @@ export function getRenderableText(text: string, font: string): string {
         .join(" / "),
     )
     .join("\n");
+}
+
+export function getRenderableText(text: string, font: string): string {
+  return renderTextForFont(text, font);
 }
 
 export { MORSE_FONT_VALUE };

@@ -36,6 +36,10 @@ function getInitialFont(): string {
 
 export default function App() {
   const [viewMode, setViewMode] = useState<"typing" | "full-page">("typing");
+  const [paperColor, setPaperColor] = useState(PAPER_COLORS[1].value); // Cream default
+  const [inkColor, setInkColor] = useState(INK_COLORS[0].value); // Black default
+  const [font, setFont] = useState(getInitialFont); // Special Elite default
+
   const {
     pages,
     currentPageIndex,
@@ -47,11 +51,8 @@ export default function App() {
     soundEnabled,
     setSoundEnabled,
     typeVirtualKey,
-  } = useTypewriter(viewMode);
+  } = useTypewriter(viewMode, font, inkColor);
 
-  const [paperColor, setPaperColor] = useState(PAPER_COLORS[1].value); // Cream default
-  const [inkColor, setInkColor] = useState(INK_COLORS[0].value); // Black default
-  const [font, setFont] = useState(getInitialFont); // Special Elite default
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {
@@ -122,9 +123,8 @@ export default function App() {
 
       {viewMode === "typing" ? (
         <PaperView
-          text={pages[currentPageIndex]}
-          font={font}
-          inkColor={inkColor}
+          page={pages[currentPageIndex]}
+          activeInkColor={inkColor}
           paperColor={paperColor}
           onPaperClick={() => setViewMode("full-page")}
           isTyping={isTyping}
@@ -137,8 +137,6 @@ export default function App() {
           onBack={() => setViewMode("typing")}
           onSelectPage={setCurrentPageIndex}
           onNewPage={addNewPage}
-          font={font}
-          inkColor={inkColor}
           paperColor={paperColor}
         />
       )}
@@ -156,8 +154,6 @@ export default function App() {
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         pages={pages}
-        font={font}
-        inkColor={inkColor}
         paperColor={paperColor}
       />
 

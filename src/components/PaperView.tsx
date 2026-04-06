@@ -1,11 +1,16 @@
 import React from "react";
 import { motion } from "motion/react";
-import { getFontFamily, getRenderableText } from "../utils/morse";
+import {
+  getFontFamily,
+  getPagePlainText,
+  getPageRenderedText,
+  type StyledPage,
+} from "../utils/styledText";
+import { renderTextForFont } from "../utils/morse";
 
 interface PaperViewProps {
-  text: string;
-  font: string;
-  inkColor: string;
+  page: StyledPage;
+  activeInkColor: string;
   paperColor: string;
   onPaperClick: () => void;
   isTyping: boolean;
@@ -13,15 +18,15 @@ interface PaperViewProps {
 }
 
 export function PaperView({
-  text,
-  font,
-  inkColor,
+  page,
+  activeInkColor,
   paperColor,
   onPaperClick,
   isTyping,
   lastKeystroke,
 }: PaperViewProps) {
-  const renderedText = getRenderableText(text, font);
+  const plainText = getPagePlainText(page);
+  const renderedText = getPageRenderedText(page);
   const lines = renderedText.split("\n");
   const lineHeight = 28; // px
 
@@ -39,7 +44,7 @@ export function PaperView({
         className="absolute right-[calc(50%-20rem)] sm:right-[calc(50%-24rem)] bottom-12 w-6 sm:w-8 h-16 sm:h-20 bg-green-200 rounded-r-xl shadow-lg z-20 hidden md:block origin-left border-2 border-green-300"
         animate={{
           rotateX:
-            text.endsWith("\n") && lastKeystroke > Date.now() - 500
+            plainText.endsWith("\n") && lastKeystroke > Date.now() - 500
               ? [0, -45, 0]
               : 0,
         }}
@@ -55,8 +60,6 @@ export function PaperView({
           top: "70%", // Typing line is fixed at 70% from top of container
           height: "1200px", // Fixed tall paper
           backgroundColor: paperColor,
-          color: inkColor,
-          fontFamily: getFontFamily(font),
           fontSize: "1.125rem",
           lineHeight: `${lineHeight}px`,
           whiteSpace: "pre-wrap",
@@ -67,11 +70,22 @@ export function PaperView({
         }}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
       >
-        {renderedText}
+        {page.runs.map((run, index) => (
+          <span
+            key={index}
+            style={{
+              color: run.inkColor,
+              fontFamily: getFontFamily(run.font),
+            }}
+          >
+            {renderTextForFont(run.text, run.font)}
+          </span>
+        ))}
         <motion.span
           animate={{ opacity: [1, 0] }}
           transition={{ repeat: Infinity, duration: 0.8 }}
-          className="inline-block w-2.5 h-5 bg-current align-middle ml-0.5"
+          className="inline-block w-2.5 h-5 align-middle ml-0.5"
+          style={{ backgroundColor: activeInkColor }}
         />
       </motion.div>
     </div>

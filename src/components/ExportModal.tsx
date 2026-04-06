@@ -8,14 +8,18 @@ import {
   Square,
   MessageCircle,
 } from "lucide-react";
-import { getFontFamily, getRenderableText } from "../utils/morse";
+import { renderTextForFont } from "../utils/morse";
+import {
+  getFontFamily,
+  getPagePlainText,
+  getPageRenderedText,
+  type StyledPage,
+} from "../utils/styledText";
 
 interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  pages: string[];
-  font: string;
-  inkColor: string;
+  pages: StyledPage[];
   paperColor: string;
 }
 
@@ -23,8 +27,6 @@ export function ExportModal({
   isOpen,
   onClose,
   pages,
-  font,
-  inkColor,
   paperColor,
 }: ExportModalProps) {
   const [selectedPages, setSelectedPages] = useState<Set<number>>(
@@ -37,11 +39,20 @@ export function ExportModal({
     const selectedIndices = Array.from<number>(selectedPages).sort();
     if (includePageHeadings) {
       return selectedIndices
-        .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
+        .map((i) => `--- Page ${i + 1} ---\n\n${getPagePlainText(pages[i])}`)
         .join("\n\n\n");
     }
 
-    return selectedIndices.map((i) => pages[i]).join("\n\n\n");
+    return selectedIndices
+      .map((i) => getPagePlainText(pages[i]))
+      .join("\n\n\n");
+  };
+
+  const getSelectedRenderedText = () => {
+    const selectedIndices = Array.from<number>(selectedPages).sort();
+    return selectedIndices
+      .map((i) => getPageRenderedText(pages[i]))
+      .join("\n\n\n");
   };
 
   // Reset selection when modal opens
@@ -92,7 +103,7 @@ export function ExportModal({
       return;
     }
 
-    const messageText = getSelectedText(false);
+    const messageText = getSelectedRenderedText();
     const waUrl = `https://wa.me/91${cleanNumber}?text=${encodeURIComponent(messageText)}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
@@ -279,22 +290,30 @@ export function ExportModal({
 
           {/* Hidden elements for PDF generation */}
           <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none">
-            {pages.map((text, index) => (
+            {pages.map((page, index) => (
               <div
                 key={index}
                 id={`export-page-${index}`}
                 className="w-[800px] min-h-[1131px] p-16" // A4 ratio
                 style={{
                   backgroundColor: paperColor,
-                  color: inkColor,
-                  fontFamily: getFontFamily(font),
                   fontSize: "1.25rem",
                   lineHeight: "28px",
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
                 }}
               >
-                {getRenderableText(text, font)}
+                {page.runs.map((run, runIndex) => (
+                  <span
+                    key={runIndex}
+                    style={{
+                      color: run.inkColor,
+                      fontFamily: getFontFamily(run.font),
+                    }}
+                  >
+                    {renderTextForFont(run.text, run.font)}
+                  </span>
+                ))}
               </div>
             ))}
           </div>

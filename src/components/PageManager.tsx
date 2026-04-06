@@ -1,15 +1,14 @@
 import React from "react";
 import { ArrowLeft, Plus } from "lucide-react";
-import { getFontFamily, getRenderableText } from "../utils/morse";
+import { getFontFamily, type StyledPage } from "../utils/styledText";
+import { renderTextForFont } from "../utils/morse";
 
 interface PageManagerProps {
-  pages: string[];
+  pages: StyledPage[];
   currentPageIndex: number;
   onBack: () => void;
   onSelectPage: (index: number) => void;
   onNewPage: () => void;
-  font: string;
-  inkColor: string;
   paperColor: string;
 }
 
@@ -19,8 +18,6 @@ export function PageManager({
   onBack,
   onSelectPage,
   onNewPage,
-  font,
-  inkColor,
   paperColor,
 }: PageManagerProps) {
   return (
@@ -41,7 +38,7 @@ export function PageManager({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex flex-col gap-8 items-center pb-32">
-        {pages.map((pageText, index) => (
+        {pages.map((page, index) => (
           <div key={index} className="w-full max-w-2xl flex flex-col gap-2">
             <div className="flex justify-between items-center px-2">
               <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
@@ -61,16 +58,24 @@ export function PageManager({
               className={`w-full min-h-[400px] shadow-xl p-8 sm:p-12 cursor-pointer transition-all hover:scale-[1.02] ${index === currentPageIndex ? "ring-4 ring-blue-400 shadow-blue-200/50" : "hover:shadow-2xl"}`}
               style={{
                 backgroundColor: paperColor,
-                color: inkColor,
-                fontFamily: getFontFamily(font),
                 fontSize: "1.125rem",
                 lineHeight: "28px",
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
               }}
             >
-              {pageText ? (
-                getRenderableText(pageText, font)
+              {page.runs.length > 0 ? (
+                page.runs.map((run, runIndex) => (
+                  <span
+                    key={runIndex}
+                    style={{
+                      color: run.inkColor,
+                      fontFamily: getFontFamily(run.font),
+                    }}
+                  >
+                    {renderTextForFont(run.text, run.font)}
+                  </span>
+                ))
               ) : (
                 <span className="text-black/20 italic">Blank page...</span>
               )}
