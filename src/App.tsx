@@ -20,6 +20,7 @@ export default function App() {
     setCurrentPageIndex,
     soundEnabled,
     setSoundEnabled,
+    typeVirtualKey,
   } = useTypewriter(viewMode);
 
   const [paperColor, setPaperColor] = useState(PAPER_COLORS[1].value); // Cream default
@@ -114,7 +115,7 @@ export default function App() {
 
       {viewMode === "typing" && (
         <div className="shrink-0 z-30">
-          <TypewriterKeyboard pressedKeys={pressedKeys} />
+          <TypewriterKeyboard pressedKeys={pressedKeys} onVirtualKeyPress={typeVirtualKey} />
         </div>
       )}
 

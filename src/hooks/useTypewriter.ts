@@ -63,6 +63,59 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
     [soundEnabled],
   );
 
+  const processInputKey = useCallback(
+    (key: string) => {
+      setIsTyping(true);
+      setLastKeystroke(Date.now());
+
+      if (key.length === 1 || key === "Backspace" || key === "Enter") {
+        playSound(key === "Enter");
+      }
+
+      setPages((prevPages: string[]) => {
+        const newPages = [...prevPages];
+        const currentText = newPages[currentPageIndex];
+        const lines = currentText.split("\n");
+        const currentLine = lines[lines.length - 1];
+
+        if (key === "Backspace") {
+          if (currentText.length > 0) {
+            newPages[currentPageIndex] = currentText.slice(0, -1);
+          }
+        } else if (key === "Enter") {
+          if (lines.length >= MAX_LINES_PER_PAGE) {
+            newPages.push("");
+            setCurrentPageIndex(newPages.length - 1);
+          } else {
+            newPages[currentPageIndex] = currentText + "\n";
+          }
+        } else if (key.length === 1) {
+          if (currentLine.length >= MAX_CHARS_PER_LINE) {
+            if (lines.length >= MAX_LINES_PER_PAGE) {
+              newPages.push(key);
+              setCurrentPageIndex(newPages.length - 1);
+            } else {
+              newPages[currentPageIndex] = currentText + "\n" + key;
+            }
+          } else {
+            newPages[currentPageIndex] = currentText + key;
+          }
+        }
+
+        return newPages;
+      });
+    },
+    [currentPageIndex, playSound],
+  );
+
+  const typeVirtualKey = useCallback(
+    (key: string) => {
+      if (viewMode !== "typing") return;
+      processInputKey(key);
+    },
+    [viewMode, processInputKey],
+  );
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (viewMode !== "typing") return;
@@ -75,58 +128,18 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
         e.preventDefault();
       }
 
-      setPressedKeys((prev) => {
+      setPressedKeys((prev: Set<string>) => {
         const next = new Set(prev);
         next.add(e.code);
         return next;
       });
-
-      setIsTyping(true);
-      setLastKeystroke(Date.now());
-
-      // Play sound on valid key press
-      if (e.key.length === 1 || e.key === "Backspace" || e.key === "Enter") {
-        playSound(e.key === "Enter");
-      }
-
-      setPages((prevPages) => {
-        const newPages = [...prevPages];
-        let currentText = newPages[currentPageIndex];
-        const lines = currentText.split("\n");
-        const currentLine = lines[lines.length - 1];
-
-        if (e.key === "Backspace") {
-          if (currentText.length > 0) {
-            newPages[currentPageIndex] = currentText.slice(0, -1);
-          }
-        } else if (e.key === "Enter") {
-          if (lines.length >= MAX_LINES_PER_PAGE) {
-            newPages.push("");
-            setCurrentPageIndex(newPages.length - 1);
-          } else {
-            newPages[currentPageIndex] = currentText + "\n";
-          }
-        } else if (e.key.length === 1) {
-          if (currentLine.length >= MAX_CHARS_PER_LINE) {
-            if (lines.length >= MAX_LINES_PER_PAGE) {
-              newPages.push(e.key);
-              setCurrentPageIndex(newPages.length - 1);
-            } else {
-              newPages[currentPageIndex] = currentText + "\n" + e.key;
-            }
-          } else {
-            newPages[currentPageIndex] = currentText + e.key;
-          }
-        }
-
-        return newPages;
-      });
+      processInputKey(e.key);
     },
-    [viewMode, currentPageIndex, playSound],
+    [viewMode, processInputKey],
   );
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    setPressedKeys((prev) => {
+    setPressedKeys((prev: Set<string>) => {
       const next = new Set(prev);
       next.delete(e.code);
       return next;
@@ -150,7 +163,7 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
   }, [isTyping, lastKeystroke]);
 
   const addNewPage = useCallback(() => {
-    setPages((prev) => {
+    setPages((prev: string[]) => {
       const next = [...prev, ""];
       setCurrentPageIndex(next.length - 1);
       return next;
@@ -168,5 +181,6 @@ export function useTypewriter(viewMode: "typing" | "full-page") {
     soundEnabled,
     setSoundEnabled,
     pressedKeys,
+    typeVirtualKey,
   };
 }
