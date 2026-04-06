@@ -33,11 +33,15 @@ export function ExportModal({
   const [isExporting, setIsExporting] = useState(false);
   const [whatsAppNumber, setWhatsAppNumber] = useState("");
 
-  const getSelectedText = () => {
+  const getSelectedText = (includePageHeadings: boolean = true) => {
     const selectedIndices = Array.from<number>(selectedPages).sort();
-    return selectedIndices
-      .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
-      .join("\n\n\n");
+    if (includePageHeadings) {
+      return selectedIndices
+        .map((i) => `--- Page ${i + 1} ---\n\n${pages[i]}`)
+        .join("\n\n\n");
+    }
+
+    return selectedIndices.map((i) => pages[i]).join("\n\n\n");
   };
 
   // Reset selection when modal opens
@@ -88,7 +92,7 @@ export function ExportModal({
       return;
     }
 
-    const messageText = getSelectedText();
+    const messageText = getSelectedText(false);
     const waUrl = `https://wa.me/91${cleanNumber}?text=${encodeURIComponent(messageText)}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
@@ -239,7 +243,7 @@ export function ExportModal({
                   />
                 </div>
                 <p className="text-xs text-green-700/80">
-                  Enter mobile number without 91. We auto-prefill 91 in the API.
+                  Enter mobile number without 91.
                 </p>
                 <button
                   onClick={handleSendWhatsApp}
