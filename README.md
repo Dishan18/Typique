@@ -61,7 +61,7 @@ Typique includes baseline SEO setup for production:
 - Crawl assets in `public/robots.txt` and `public/sitemap.xml`
 - Social preview image at `public/og-image.svg`
 
-Before deploying, replace `https://typique.app/` in these files with your real domain:
+Production domain is set to `https://typique.vercel.app/` in:
 
 - `index.html`
 - `public/robots.txt`
